@@ -40,10 +40,9 @@ int main(int argc, char** argv)
 	// messages with the maximum message
 	// size being 4096 bytes
 
-  struct mq_attr {
-    long mq_maxmsg = 10;
-    long mq_msgsize = 4096;
-  };
+  struct mq_attr attr;
+  attr.mq_maxmsg = 10;
+  attr.mq_msgsize = 4096;
 	
 	// Sanity checks -- make sure the user has provided a file
 	if(argc < 2)
@@ -67,7 +66,7 @@ int main(int argc, char** argv)
 	// whose name is defined by the macro
 	// MSQ_NAME macro above. We assume that
 	// the receiver has allocated the message queue.
-
+  mqd_t q = mq_open(MSQ_NAME, O_RDWR|O_CREAT, 0660, NULL);
 	
 	//TODO: Loop below attempts to read the 
 	// file 4096 bytes at a time.
@@ -102,7 +101,7 @@ int main(int argc, char** argv)
 	// TODO: Send a message with size of 0
 	// to the receiver to tell it that the
 	// transmission is done
-		
+  int pid = atoi(argv[2]);
 	fprintf(stderr, "Sent a total of %d bytes\n", totalBytesRead);
 	
 	// TODO: Close the file

@@ -8,7 +8,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <signal.h>
-
+#include <iostream>
+using namespace std;
 // The name of the shared memory segment
 #define MSQ_NAME "/cpsc351queue"
 
@@ -28,11 +29,11 @@ void recvFile()
 	// queue that can hold up to 10
 	// messages with the maximum message
 	// size being 4096 bytes
-	struct mq_attr {
-    long mq_maxmsg = 10;
-    long mq_msgsize = MQ_MSGSIZE;
-  };
-
+	struct mq_attr attr;
+  attr.mq_flags = 0;  
+  attr.mq_maxmsg = 10;  
+  attr.mq_msgsize = MQ_MSGSIZE;  
+  attr.mq_curmsgs = 0;
 	
 	// The buffer used to store the message copied
 	// copied from the shared memory
@@ -66,10 +67,15 @@ void recvFile()
 	// parameters defined by the data 
 	// message queue data structure defined above.
 	// The queue should have permissions of 0600.
+  
+  mqd_t queue = mq_open(MSQ_NAME, O_CREAT|O_RDWR, 0600, &attr);
+
 
 	while(msqBytesRecv != 0)
 	{
-    msqBytesRecv = mq_receive(0600, buff, sizeof(buff), NULL);
+    cout << queue << endl;
+    msqBytesRecv = mq_receive(queue, buff, sizeof(buff), NULL);
+    cout << msqBytesRecv << endl;
     if (msqBytesRecv < 0) {
       perror("receive");
       exit(1);
@@ -80,6 +86,9 @@ void recvFile()
         perror("write");
         exit(1);
       }
+    }
+    else {
+      exit(0);
     }
 		// TODO: Receive the message.
 		// Write the data from the message
